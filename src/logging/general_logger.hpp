@@ -24,10 +24,17 @@
 #include <boost/log/sinks/text_ostream_backend.hpp>
 #include <boost/log/sinks/text_file_backend.hpp>
 #include <boost/log/sinks/basic_sink_frontend.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/null.hpp>
 #include "m3bp/logger.hpp"
 
+namespace m3bp {
+    extern boost::iostreams::stream<boost::iostreams::null_sink> nullout;
+}
+
 #define M3BP_GENERAL_LOG(sv) \
-	BOOST_LOG_SEV(m3bp::general_logger::get(), m3bp::LogLevel::sv)
+	m3bp::nullout
+	// BOOST_LOG_SEV(m3bp::general_logger::get(), m3bp::LogLevel::sv)
 
 namespace m3bp {
 

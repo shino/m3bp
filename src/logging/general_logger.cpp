@@ -31,6 +31,8 @@
 
 namespace m3bp {
 
+boost::iostreams::stream<boost::iostreams::null_sink> nullout { boost::iostreams::null_sink{} };
+
 template <typename CharT, typename TraitsT>
 std::basic_ostream<CharT, TraitsT> &operator<<(
 	std::basic_ostream<CharT, TraitsT> &os, m3bp::LogLevel level)
