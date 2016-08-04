@@ -82,7 +82,7 @@ BOOST_LOG_GLOBAL_LOGGER_INIT(
 {
 	auto logger = boost::log::sources::severity_logger_mt<LogLevel>();
 
-	logger.add_attribute("TimeStamp", log_attr::local_clock());
+	logger.add_attribute("TimeStamp", log_attr::utc_clock());
 	logger.add_attribute("ThreadID",  log_attr::current_thread_id());
 	logger.add_attribute("Tag",       log_attr::constant<Tag>(LOGGER_TAG_GENERAL));
 
