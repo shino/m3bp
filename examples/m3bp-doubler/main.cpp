@@ -66,8 +66,8 @@ public:
 };
 
 int main(int argc, const char *argv[]){
-	if(argc < 3){
-		std::cerr << "Usage: " << argv[0] << " fragment_size depth" << std::endl;
+	if(argc < 5){
+		std::cerr << "Usage: " << argv[0] << " fragment_size depth width concurrency" << std::endl;
 		return 0;
 	}
 
@@ -75,25 +75,30 @@ int main(int argc, const char *argv[]){
 
 	const size_t fragment_size = atoi(argv[1]);
 	const size_t depth = atoi(argv[2]);
+	const size_t width = atoi(argv[3]);
+    const unsigned int max_concurrency = atoi(argv[4]);
 
 	m3bp::FlowGraph graph;
-	std::vector<m3bp::VertexDescriptor> vertices;
-	vertices.emplace_back(graph.add_vertex("generator", Generator(fragment_size)));
+	std::vector<m3bp::VertexDescriptor> prev_vertices;
+	prev_vertices.emplace_back(graph.add_vertex("generator", Generator(fragment_size)));
 	for(size_t i = 0; i < depth; ++i){
 		std::vector<m3bp::VertexDescriptor> next;
-		for(const auto &v : vertices){
-			next.emplace_back(graph.add_vertex("identity", Identity()));
-			graph.add_edge(v.output_port(0), next.back().input_port(0));
-			next.emplace_back(graph.add_vertex("identity", Identity()));
-			graph.add_edge(v.output_port(0), next.back().input_port(0));
+		for(const auto &v : prev_vertices){
+            for(size_t j = 0; j < width; ++j) {
+                next.emplace_back(graph.add_vertex("identity", Identity()));
+                graph.add_edge(v.output_port(0), next.back().input_port(0));
+            }
 		}
-		vertices = std::move(next);
+		prev_vertices = std::move(next);
 	}
 
 	m3bp::Configuration config;
+    config.max_concurrency(max_concurrency);
 	m3bp::Context ctx;
 	ctx.set_flow_graph(graph);
 	ctx.set_configuration(config);
+
+    std::cout << "context setup finished, about to execute." << std::endl;
 
 	const auto begin_time = std::chrono::steady_clock::now();
 	ctx.execute();
